@@ -15,5 +15,7 @@
     # Indicamos lista de modulos necesarios para que este funcione correctamente
     'depends': ['base'],
     # Carga los archivos para la política de seguridad y las vistas
-    'data': [],
+    'data': [
+        'security/ir.model.access.csv',
+    ],
 }

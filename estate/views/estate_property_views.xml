@@ -2,7 +2,7 @@
   <data>
     <record id="estate_property_action" model="ir.actions.act_window">
       <!-- Nombre de la acción que aparecerá en el menú-->
-      <field name="name">Listado de propiedades inmobiliarias</field>
+      <field name="name">Listado de Propiedades Inmobiliarias</field>
       <!-- Nombre del modelo que mostraremos en la vista-->
       <field name="res_model">estate.property</field>
       <!-- indicamos que nuestro formulario tendrá vista list (para mostrar todos los datos)
@@ -17,15 +17,93 @@
         </menuitem>
     </menuitem>
 
+    <!-- Definimos como es la vista explicita de búsqueda-->
+    <record id="estate_property_view_search" model="ir.ui.view">
+        <field name="name">estate.property.search</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <search string="Búsqueda de Propiedades Inmobiliarias">
+                <field name="name"/>
+                <field name="postcode"/>
+                <field name="expected_price"/>
+                <field name="bedrooms"/>
+                <field name="living_area"/>
+                <field name="facades"/>
+
+                <filter
+                  string="Disponibles"
+                  name="available"
+                  domain="['|', ('state', '=', 'new'), ('state', '=', 'offer_received')]"
+                />
+                <filter string="Archivados" name="inactives" domain="[('active', '=', False)]"/>
+
+                <group>
+                    <filter string="Código Postal" name="group_by_postcode" context="{'group_by':'postcode'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <!-- Definimos como es la vista explicita de la lista-->
     <record  id="estate_property_view_list" model="ir.ui.view">
-      <field name="name">Lista de propiedades inmobiliarias</field>
+      <field name="name">estate.property.list</field>
       <field name="model">estate.property</field>
       <field name="arch" type="xml">
-        <list>
+        <list string="Listado de Propiedades Inmobiliarias">
           <field name="name" />
+          <field name="postcode" />
+          <field name="bedrooms" />
+          <field name="living_area" />
+          <field name="expected_price" />
+          <field name="selling_price" />
+          <field name="date_availability" />
         </list>
       </field>
+    </record>
+
+    <!-- Definimos como es la vista explicita del formulario-->
+    <record id="estate_property_view_form" model="ir.ui.view">
+        <field name="name">estate.property.form</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+          <form string="Propiedad Inmobiliaria">
+            <sheet>
+              <!-- Título de la propiedad -->
+              <h1>
+                <field name="name"/>
+              </h1>
+
+              <!-- Grupo de campos en dos columnas -->
+              <group>
+                <group>
+                  <field name="postcode"/>
+                  <field name="date_availability"/>
+                </group>
+                <group>
+                  <field name="expected_price"/>
+                  <field name="selling_price"/>
+                </group>
+              </group>
+
+              <!-- Pestaña descripción -->
+              <notebook>
+                <page string="Descripción">
+                  <group>
+                    <field name="description"/>
+                    <field name="bedrooms"/>
+                    <field name="living_area"/>
+                    <field name="facades"/>
+                    <field name="garage"/>
+                    <field name="garden"/>
+                    <field name="garden_area" invisible="not garden"/>
+                    <field name="garden_orientation" invisible="not garden"/>
+                  </group>
+                </page>
+              </notebook>
+
+            </sheet>
+          </form>
+        </field>
     </record>
 
   </data>

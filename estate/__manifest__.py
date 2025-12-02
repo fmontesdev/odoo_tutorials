@@ -17,5 +17,6 @@
     # Carga los archivos para la política de seguridad y las vistas
     'data': [
         'security/ir.model.access.csv',
+        'views/estate_property_views.xml',
     ],
 }

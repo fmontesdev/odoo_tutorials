@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from dateutil.relativedelta import relativedelta
 from odoo import models, fields
 
 #Definimos el modelo de datos
@@ -13,10 +14,14 @@ class EstateProperty(models.Model):
     name = fields.Char(string='Título', required=True)
     description = fields.Text(string='Descripción')
     postcode = fields.Char(string='Código Postal')
-    date_availability = fields.Date(string='Disponible Desde')
+    date_availability = fields.Date(
+        string='Disponible Desde',
+        default=lambda self: fields.Date.today() + relativedelta(months=3),
+        copy=False
+    )
     expected_price = fields.Float(string='Precio Esperado', required=True)
-    selling_price = fields.Float(string='Precio de Venta')
-    bedrooms = fields.Integer(string='Dormitorios')
+    selling_price = fields.Float(string='Precio de Venta', readonly=True, copy=False)
+    bedrooms = fields.Integer(string='Dormitorios', default=2)
     living_area = fields.Integer(string='Área Habitable')
     facades = fields.Integer(string='Fachadas')
     garage = fields.Boolean(string='Garaje')
@@ -28,6 +33,14 @@ class EstateProperty(models.Model):
         ('east', 'Este'),
         ('west', 'Oeste'),
     ], string='Orientación del Jardín')
+    state = fields.Selection([
+        ('new', 'Nuevo'),
+        ('offer_received', 'Oferta Recibida'),
+        ('offer_accepted', 'Oferta Aceptada'),
+        ('sold', 'Vendido'),
+        ('canceled', 'Cancelado'),
+    ], string='Estado', default='new')
+    active = fields.Boolean(default=True)
 
     _sql_constraints = [
         ('check_expected_price', 'CHECK(expected_price >= 0)', 'El precio esperado no puede ser negativo.'),

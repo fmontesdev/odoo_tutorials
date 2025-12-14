@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
+from odoo.exceptions import UserError
 
 #Definimos el modelo de datos
 class EstatePropertyOffer(models.Model):
@@ -59,3 +60,34 @@ class EstatePropertyOffer(models.Model):
       else:
         delta = record.date_deadline - fields.Date.today()
         record.validity = delta.days
+
+  # Acción para aceptar la oferta
+  def action_accept(self):
+    for record in self:
+      if record.status == 'accepted':
+        # Excepción que evita aceptar una oferta previamente aceptada
+        raise UserError("La oferta ya ha sido aceptada.")
+      
+      if record.property_id.offer_ids.filtered(lambda o: o.status == 'accepted'):
+        # Excepción que evita aceptar una oferta si ya hay otra aceptada
+        raise UserError("Ya existe una oferta aceptada para esta propiedad.")
+
+      record.status = 'accepted'
+      record.property_id.state = 'offer_accepted'
+      record.property_id.buyer_id = record.partner_id
+      record.property_id.selling_price = record.price
+
+  # Acción para rechazar la oferta
+  def action_refuse(self):
+    for record in self:
+      if record.status == 'refused':
+        # Excepción que evita rechazar una oferta previamente rechazada
+        raise UserError("La oferta ya ha sido rechazada.")
+      
+      record.status = 'refused'
+      # Si la oferta rechazada era la aceptada, limpiar comprador y precio de venta
+      if record.property_id.buyer_id == record.partner_id:
+        record.property_id.buyer_id = False
+        record.property_id.state = 'new'
+        if record.property_id.selling_price == record.price:
+          record.property_id.selling_price = 0

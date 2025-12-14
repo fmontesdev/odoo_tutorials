@@ -1,22 +1,5 @@
 <odoo>
   <data>
-    <record id="estate_property_action" model="ir.actions.act_window">
-      <!-- Nombre de la acción que aparecerá en el menú-->
-      <field name="name">Listado de Propiedades Inmobiliarias</field>
-      <!-- Nombre del modelo que mostraremos en la vista-->
-      <field name="res_model">estate.property</field>
-      <!-- indicamos que nuestro formulario tendrá vista list (para mostrar todos los datos)
-      y vista form (para crear o editar datos) -->
-      <field name="view_mode">list,form</field>
-    </record>
-
-    <!-- Definimos los 3 niveles del menú para acceder a la acción definida -->
-    <menuitem id="estate_property_menu_root" name="Propiedades Inmobiliarias">
-        <menuitem id="estate_property_first_level_menu" name="Opciones">
-            <menuitem id="estate_property_menu_action" action="estate_property_action"/>
-        </menuitem>
-    </menuitem>
-
     <!-- Definimos como es la vista explicita de búsqueda-->
     <record id="estate_property_view_search" model="ir.ui.view">
         <field name="name">estate.property.search</field>
@@ -73,9 +56,15 @@
                 <field name="name"/>
               </h1>
 
+              <!-- Etiquetas de la propiedad -->
+              <group>
+                <field name="tag_ids" widget="many2many_tags"/>
+              </group>
+
               <!-- Grupo de campos en dos columnas -->
               <group>
                 <group>
+                  <field name="property_type_id"/>
                   <field name="postcode"/>
                   <field name="date_availability"/>
                 </group>
@@ -85,8 +74,9 @@
                 </group>
               </group>
 
-              <!-- Pestaña descripción -->
+              <!-- Grupo de pestañas -->
               <notebook>
+                <!-- Pestaña descripción -->
                 <page string="Descripción">
                   <group>
                     <field name="description"/>
@@ -97,6 +87,19 @@
                     <field name="garden"/>
                     <field name="garden_area" invisible="not garden"/>
                     <field name="garden_orientation" invisible="not garden"/>
+                  </group>
+                </page>
+
+                <!-- Pestaña ofertas -->
+                <page string="Ofertas">
+                  <field name="offer_ids"/>
+                </page>
+
+                <!-- Pestaña otra información -->
+                <page string="Otra información">
+                  <group>
+                    <field name="salesman_id"/>
+                    <field name="buyer_id"/>
                   </group>
                 </page>
               </notebook>

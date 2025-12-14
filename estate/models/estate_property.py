@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
+from odoo.exceptions import UserError
 
 #Definimos el modelo de datos
 class EstateProperty(models.Model):
@@ -62,7 +63,8 @@ class EstateProperty(models.Model):
 
   # Relación Many2many con estate.property.tag para las etiquetas
   tag_ids = fields.Many2many(
-    comodel_name='estate.property.tag'
+    comodel_name='estate.property.tag',
+    string='Etiquetas'
   )
 
   # Relación One2many con estate.property.offer para las ofertas
@@ -107,6 +109,33 @@ class EstateProperty(models.Model):
     else:
       self.garden_area = 0
       self.garden_orientation = False
+
+  # Acciones para cambiar el estado de la propiedad
+  def action_set_sold(self):
+    for record in self:
+      if record.state == 'sold':
+        # Excepción que evita vender una propiedad previamente vendida
+        raise UserError("La propiedad ya está vendida.")
+      if record.state == 'canceled':
+        # Excepción que evita vender una propiedad cancelada
+        raise UserError("No se puede vender una propiedad cancelada.")
+      if not record.offer_ids.filtered(lambda o: o.status == 'accepted'):
+        # Excepción que evita vender una propiedad sin oferta aceptada
+        raise UserError("No se puede vender una propiedad sin una oferta aceptada.")
+      record.state = 'sold'
+  
+  def action_set_canceled(self):
+    for record in self:
+      if record.state == 'canceled':
+        # Excepción que evita cancelar una propiedad previamente cancelada
+        raise UserError("La propiedad ya está cancelada.")
+      if record.state == 'sold':
+        # Excepción que evita cancelar una propiedad vendida
+        raise UserError("No se puede cancelar una propiedad vendida.")
+      if record.offer_ids.filtered(lambda o: o.status == 'accepted'):
+        # Excepción que evita cancelar una propiedad con oferta aceptada
+        raise UserError("No se puede cancelar una propiedad con una oferta aceptada.")
+      record.state = 'canceled'
 
   # Restricciones SQL
   _sql_constraints = [

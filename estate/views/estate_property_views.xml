@@ -51,6 +51,12 @@
         <field name="model">estate.property</field>
         <field name="arch" type="xml">
           <form string="Propiedad Inmobiliaria">
+            <!-- Botones de acción -->
+            <header>
+                <button name="action_set_sold" type="object" string="Vender"/>
+                <button name="action_set_canceled" type="object" string="Cancelar"/>
+            </header>
+
             <sheet>
               <!-- Título de la propiedad -->
               <h1>
@@ -59,12 +65,13 @@
 
               <!-- Etiquetas de la propiedad -->
               <group>
-                <field name="tag_ids" widget="many2many_tags"/>
+                <field name="tag_ids" widget="many2many_tags" nolabel="1"/>
               </group>
 
               <!-- Grupo de campos en dos columnas -->
               <group>
                 <group>
+                  <field name="state"/>
                   <field name="property_type_id"/>
                   <field name="postcode"/>
                   <field name="date_availability"/>

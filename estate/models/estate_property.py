@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
-from odoo import models, fields
 
 #Definimos el modelo de datos
 class EstateProperty(models.Model):
@@ -62,8 +62,7 @@ class EstateProperty(models.Model):
 
   # Relación Many2many con estate.property.tag para las etiquetas
   tag_ids = fields.Many2many(
-    comodel_name='estate.property.tag',
-    string='Etiquetas'
+    comodel_name='estate.property.tag'
   )
 
   # Relación One2many con estate.property.offer para las ofertas
@@ -73,6 +72,43 @@ class EstateProperty(models.Model):
     string='Ofertas'
   )
 
+  # Campos calculados
+  total_area = fields.Integer(
+    string='Área Total',
+    compute='_compute_total_area',
+    store=True
+  )
+  best_price = fields.Float(
+    string='Mejor Oferta',
+    compute='_compute_best_price'
+  )
+
+  # Método para calcular el área total
+  @api.depends('living_area', 'garden_area')
+  def _compute_total_area(self):
+    for record in self:
+      record.total_area = record.living_area + record.garden_area # Suma el área habitable y el área del jardín
+
+  # Método para calcular la mejor oferta
+  @api.depends('offer_ids.price')
+  def _compute_best_price(self):
+    for record in self:
+      if record.offer_ids:
+        record.best_price = max(record.offer_ids.mapped('price')) # Obtiene el precio máximo de las ofertas
+      else:
+        record.best_price = 0.0
+
+  # Método onChange para actualizar los valores de área y orientación del jardín cuando se cambia el campo garden
+  @api.onchange('garden')
+  def _onchange_garden(self):
+    if self.garden:
+      self.garden_area = 10
+      self.garden_orientation = 'north'
+    else:
+      self.garden_area = 0
+      self.garden_orientation = False
+
+  # Restricciones SQL
   _sql_constraints = [
     ('check_expected_price', 'CHECK(expected_price >= 0)', 'El precio esperado no puede ser negativo.'),
     ('check_selling_price', 'CHECK(selling_price >= 0)', 'El precio de venta no puede ser negativo.'),

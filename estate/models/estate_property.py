@@ -2,7 +2,8 @@
 
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools.float_utils import float_compare, float_is_zero
 
 #Definimos el modelo de datos
 class EstateProperty(models.Model):
@@ -137,12 +138,21 @@ class EstateProperty(models.Model):
         raise UserError("No se puede cancelar una propiedad con una oferta aceptada.")
       record.state = 'canceled'
 
+  # Restricción para validar que el precio de venta sea al menos el 90% del precio esperado
+  @api.constrains('selling_price', 'expected_price')
+  def _check_selling_price_minimum(self):
+    for record in self:
+      # Solo valida si el precio de venta no es cero (ya que es cero hasta que se acepta una oferta)
+      if not float_is_zero(record.selling_price, precision_digits=2):
+        min_selling_price = record.expected_price * 0.9
+        # Compara: -1 si selling_price < min_selling_price, 0 si son iguales, 1 si selling_price > min_selling_price
+        if float_compare(record.selling_price, min_selling_price, precision_digits=2) < 0:
+          raise ValidationError(f'El precio de venta no puede ser inferior al 90% del precio esperado ({min_selling_price:.2f}).')
+  
   # Restricciones SQL
-  _sql_constraints = [
-    ('check_expected_price', 'CHECK(expected_price >= 0)', 'El precio esperado no puede ser negativo.'),
-    ('check_selling_price', 'CHECK(selling_price >= 0)', 'El precio de venta no puede ser negativo.'),
-    ('check_bedrooms', 'CHECK(bedrooms >= 0)', 'El número de dormitorios no puede ser negativo.'),
-    ('check_living_area', 'CHECK(living_area >= 0)', 'El área habitable no puede ser negativa.'),
-    ('check_facades', 'CHECK(facades >= 0)', 'El número de fachadas no puede ser negativo.'),
-    ('check_garden_area', 'CHECK(garden_area >= 0)', 'El área del jardín no puede ser negativa.'),
-  ]
+  _check_expected_price = models.Constraint('CHECK(expected_price >= 0)', 'El precio esperado no puede ser negativo.')
+  _check_selling_price = models.Constraint('CHECK(selling_price >= 0)', 'El precio de venta no puede ser negativo.')
+  _check_bedrooms = models.Constraint('CHECK(bedrooms >= 0)', 'El número de dormitorios no puede ser negativo.')
+  _check_living_area = models.Constraint('CHECK(living_area >= 0)', 'El área habitable no puede ser negativa.')
+  _check_facades = models.Constraint('CHECK(facades >= 0)', 'El número de fachadas no puede ser negativo.')
+  _check_garden_area = models.Constraint('CHECK(garden_area >= 0)', 'El área del jardín no puede ser negativa.')

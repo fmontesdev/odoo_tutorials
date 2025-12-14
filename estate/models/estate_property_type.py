@@ -16,3 +16,6 @@ class EstatePropertyType(models.Model):
     comodel_name='estate.property',
     inverse_name='property_type_id'
   )
+
+  # Restricciones SQL
+  _uniq_type_name = models.Constraint('UNIQUE(name)', 'El nombre del tipo de propiedad debe ser único')

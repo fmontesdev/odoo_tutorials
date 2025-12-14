@@ -15,3 +15,7 @@ class EstatePropertyTag(models.Model):
   property_ids = fields.Many2many(
     comodel_name='estate.property'
   )
+
+  # Restricciones SQL
+  _uniq_tag_name = models.Constraint('UNIQUE(name)', 'El nombre de la etiqueta debe ser único')
+

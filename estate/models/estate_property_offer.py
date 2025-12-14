@@ -91,3 +91,6 @@ class EstatePropertyOffer(models.Model):
         record.property_id.state = 'new'
         if record.property_id.selling_price == record.price:
           record.property_id.selling_price = 0
+
+  # Restricciones SQL
+  _check_price = models.Constraint('CHECK(price >= 0)', 'El precio de la oferta no puede ser negativo.')

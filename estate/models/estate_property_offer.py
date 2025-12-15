@@ -9,6 +9,7 @@ class EstatePropertyOffer(models.Model):
   #Nombre y descripcion del modelo de datos
   _name = 'estate.property.offer'
   _description = 'Modelo de Oferta Inmobiliaria'
+  _order = 'price desc'
 
   # Los atributos siguientes no se declaran, odoo los gestiona solo: id, create_uid, create_date, write_uid, write_dates
   price = fields.Float(string='Precio')
@@ -39,6 +40,14 @@ class EstatePropertyOffer(models.Model):
     string='Fecha Límite',
     compute='_compute_date_deadline',
     inverse='_inverse_date_deadline',
+    store=True,
+  )
+
+  #Campo relacionado
+  property_type_id = fields.Many2one(
+    comodel_name='estate.property.type',
+    related='property_id.property_type_id',
+    string='Tipo de Propiedad',
     store=True,
   )
 

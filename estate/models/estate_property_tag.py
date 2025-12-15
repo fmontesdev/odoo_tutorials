@@ -7,9 +7,11 @@ class EstatePropertyTag(models.Model):
   #Nombre y descripcion del modelo de datos
   _name = 'estate.property.tag'
   _description = 'Modelo de Etiqueta de propiedad inmobiliaria'
+  _order = 'name'
 
   # Los atributos siguientes no se declaran, odoo los gestiona solo: id, create_uid, create_date, write_uid, write_dates
   name = fields.Char(string='Nombre', required=True)
+  color = fields.Integer(string='Color')
 
   # Relación Many2many con estate.property
   property_ids = fields.Many2many(

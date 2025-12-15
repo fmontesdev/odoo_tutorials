@@ -10,7 +10,9 @@
                 <field name="postcode"/>
                 <field name="expected_price"/>
                 <field name="bedrooms"/>
-                <field name="living_area"/>
+                <!-- Filtro para área habitable que sea mayor o igual a un valor dado -->
+                <field name="living_area"
+                  filter_domain="[('living_area', '>=', self)]"/>
                 <field name="garden_area" />
                 <field name="total_area" />
 
@@ -33,14 +35,19 @@
       <field name="name">estate.property.list</field>
       <field name="model">estate.property</field>
       <field name="arch" type="xml">
-        <list string="Listado de Propiedades Inmobiliarias">
-          <field name="name" />
-          <field name="postcode" />
-          <field name="bedrooms" />
-          <field name="living_area" />
-          <field name="expected_price" />
-          <field name="selling_price" />
-          <field name="date_availability" />
+        <!-- Lista con decoraciones según el estado de la propiedad -->
+        <list string="Listado de Propiedades Inmobiliarias"
+            decoration-success="state == 'offer_received' or state == 'offer_accepted'"
+            decoration-bf="state == 'offer_accepted'"
+            decoration-muted="state == 'sold'">
+          <field name="name"/>
+          <field name="postcode"/>
+          <field name="bedrooms"/>
+          <field name="living_area"/>
+          <field name="expected_price"/>
+          <field name="selling_price"/>
+          <field name="date_availability" optional="hide"/>
+          <field name="state" column_invisible="1"/>
         </list>
       </field>
     </record>
@@ -53,8 +60,12 @@
           <form string="Propiedad Inmobiliaria">
             <!-- Botones de acción -->
             <header>
-                <button name="action_set_sold" type="object" string="Vender"/>
-                <button name="action_set_canceled" type="object" string="Cancelar"/>
+                <!-- El botón se oculta si el estado es 'sold' o 'canceled' -->
+                <button name="action_set_sold" type="object" string="Vender"
+                  invisible="state in ('sold', 'canceled')"/>
+                <button name="action_set_canceled" type="object" string="Cancelar"
+                  invisible="state in ('sold', 'canceled')"/>
+                <field name="state" widget="statusbar" statusbar_visible="new,offer_received,offer_accepted,sold"/>
             </header>
 
             <sheet>
@@ -65,14 +76,15 @@
 
               <!-- Etiquetas de la propiedad -->
               <group>
-                <field name="tag_ids" widget="many2many_tags" nolabel="1"/>
+                <!-- color_field añade color a las etiquetas según el campo color definido en el modelo estate.property.tag -->
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" nolabel="1"/>
               </group>
 
               <!-- Grupo de campos en dos columnas -->
               <group>
                 <group>
-                  <field name="state"/>
-                  <field name="property_type_id"/>
+                  <!-- no_create y no_open para evitar crear, editar o abrir tipos de propiedad desde aquí -->
+                  <field name="property_type_id" options="{'no_create': True, 'no_open': True}"/>
                   <field name="postcode"/>
                   <field name="date_availability"/>
                 </group>
@@ -102,7 +114,8 @@
 
                 <!-- Pestaña ofertas -->
                 <page string="Ofertas">
-                  <field name="offer_ids"/>
+                  <!-- Lista de ofertas relacionadas con la propiedad, no editable si el estado es 'offer_accepted', 'sold' o 'canceled' -->
+                  <field name="offer_ids" readonly="state in ('offer_accepted', 'sold', 'canceled')"/>
                 </page>
 
                 <!-- Pestaña otra información -->

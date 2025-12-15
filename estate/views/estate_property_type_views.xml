@@ -17,6 +17,7 @@
       <field name="model">estate.property.type</field>
       <field name="arch" type="xml">
         <list string="Listado de Tipos de Propiedades Inmobiliarias">
+          <field name="sequence" widget="handle"/> <!-- Para permitir reordenar los tipos manualmente-->
           <field name="name" />
         </list>
       </field>
@@ -29,9 +30,31 @@
         <field name="arch" type="xml">
           <form string="Tipo de Propiedad Inmobiliaria">
             <sheet>
+              <!-- Contenedor de botones para estadísticas -->
+              <div class="oe_button_box" name="button_box">
+                <button name="%(estate_property_offer_action)d" type="action" class="oe_stat_button" icon="fa-money">
+                  <field name="offer_count" widget="statinfo" string="Ofertas"/>
+                </button>
+              </div>
+
+              <!-- Nombre -->
               <h1>
                 <field name="name"/>
               </h1>
+
+              <!-- Grupo de pestañas -->
+              <notebook>
+                <!-- Pestaña de propiedades -->
+                <page string="Propiedades">
+                  <field name="property_ids">
+                    <list string="Propiedades">
+                      <field name="name"/>
+                      <field name="expected_price"/>
+                      <field name="state"/>
+                    </list>
+                  </field>
+                </page>
+              </notebook>
             </sheet>
           </form>
         </field>

@@ -8,6 +8,8 @@
       <field name="res_model">estate.property</field>
       <!-- Indicamos que nuestro formulario tendrá vista list (para mostrar todos los datos) y vista form (para crear o editar datos) -->
       <field name="view_mode">list,form</field>
+      <!-- Contexto para que por defecto se muestren las propiedades disponibles -->
+      <field name="context">{'search_default_available': True}</field>
     </record>
 
     <!-- Acción para los tipos de propiedades inmobiliarias-->

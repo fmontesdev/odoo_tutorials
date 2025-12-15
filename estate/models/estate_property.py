@@ -10,6 +10,7 @@ class EstateProperty(models.Model):
   #Nombre y descripcion del modelo de datos
   _name = 'estate.property'
   _description = 'Modelo de la propiedad inmobiliaria'
+  _order = 'id desc'
 
   # Los atributos siguientes no se declaran, odoo los gestiona solo: id, create_uid, create_date, write_uid, write_dates
   name = fields.Char(string='Nombre', required=True)
@@ -46,7 +47,7 @@ class EstateProperty(models.Model):
   # Relación Many2one con estate.property.type para el tipo de propiedad
   property_type_id = fields.Many2one(
     comodel_name='estate.property.type',
-    string='Tipo de Propiedad',
+    string='Tipo de Propiedad'
   )
 
   # Relación Many2one con res.users para el vendedor

@@ -134,5 +134,44 @@
         </field>
     </record>
 
+    <!-- Definimos como es la vista explicita de kanban-->
+    <record  id="estate_property_view_kanban" model="ir.ui.view">
+      <field name="name">estate.property.kanban</field>
+      <field name="model">estate.property</field>
+      <field name="arch" type="xml">
+        <kanban string="Kanban de Propiedades Inmobiliarias"
+            default_group_by="property_type_id" records_draggable="false">
+          <!-- Declarar campos que se utilizan en expresiones -->
+          <field name="state"/>
+
+          <templates>
+            <t t-name="card">
+              <div class="oe_kanban_card">
+                <div class="oe_kanban_content">
+                  <div class="mb-1">
+                    <strong><field name="name"/></strong>
+                  </div>
+                  <div>
+                    <span>Precio esperado: </span>
+                    <field name="expected_price"/>
+                  </div>
+                  <div t-if="record.state.raw_value == 'offer_received' or record.state.raw_value == 'offer_accepted'">
+                    <span>Mejor oferta: </span>
+                    <field name="best_price"/>
+                  </div>
+                  <div t-if="record.state.raw_value == 'offer_accepted' or record.state.raw_value == 'sold'">
+                    <span>Precio de venta: </span>
+                    <field name="selling_price"/>
+                  </div>
+                  <div class="mt-2">
+                    <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                  </div>
+                </div>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record>
   </data>
 </odoo>

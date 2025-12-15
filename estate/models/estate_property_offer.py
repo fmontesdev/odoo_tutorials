@@ -101,5 +101,28 @@ class EstatePropertyOffer(models.Model):
         if record.property_id.selling_price == record.price:
           record.property_id.selling_price = 0
 
+  # Sobrescribe el método create para añadir validaciones y lógica adicional
+  @api.model
+  def create(self, vals_list):   
+    # Validar que el precio no sea inferior a ofertas existentes
+    for vals in vals_list:
+      if vals.get('property_id') and vals.get('price'):
+        property_id = vals['property_id']
+        new_price = vals['price']
+        
+        # Buscar ofertas existentes para esta propiedad
+        existing_offers = self.search([('property_id', '=', property_id)])
+        if existing_offers:
+          max_existing_price = max(existing_offers.mapped('price'))
+          if new_price < max_existing_price:
+            raise UserError(f'El precio de la oferta ({new_price:.2f}) no puede ser inferior al de la máxima oferta existente ({max_existing_price:.2f}).')
+    
+    # Al crear las nuevas ofertas, cambia el estado de la propiedad a 'offer_received'
+    offers = super().create(vals_list)
+    for offer in offers:
+      if offer.property_id.state == 'new':
+        offer.property_id.state = 'offer_received'
+    return offers
+
   # Restricciones SQL
   _check_price = models.Constraint('CHECK(price >= 0)', 'El precio de la oferta no puede ser negativo.')

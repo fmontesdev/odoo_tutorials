@@ -50,7 +50,7 @@ class EstateProperty(models.Model):
     string='Tipo de Propiedad'
   )
 
-  # Relación Many2one con res.users para el vendedor
+  # Relación Many2one con res.users para el vendedor. Por defecto, el usuario actual
   salesman_id = fields.Many2one(
     comodel_name='res.users',
     string='Vendedor',
@@ -138,6 +138,13 @@ class EstateProperty(models.Model):
         # Excepción que evita cancelar una propiedad con oferta aceptada
         raise UserError("No se puede cancelar una propiedad con una oferta aceptada.")
       record.state = 'canceled'
+
+  # Método para evitar eliminar propiedades que no estén en estado 'Nuevo' o 'Cancelado'
+  @api.ondelete(at_uninstall=False)
+  def _unlink_if_not_new_or_canceled(self):
+    for record in self:
+      if record.state not in ('new', 'canceled'):
+        raise UserError("Solo se pueden eliminar propiedades en estado 'Nuevo' o 'Cancelado'.")
 
   # Restricción para validar que el precio de venta sea al menos el 90% del precio esperado
   @api.constrains('selling_price', 'expected_price')
